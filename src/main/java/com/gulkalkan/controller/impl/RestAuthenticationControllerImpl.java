@@ -4,6 +4,7 @@ import com.gulkalkan.controller.IRestAuthenticationController;
 import com.gulkalkan.controller.RestBaseController;
 import com.gulkalkan.controller.RootEntity;
 import com.gulkalkan.dto.AuthRequest;
+import com.gulkalkan.dto.AuthResponse;
 import com.gulkalkan.dto.DtoUser;
 import com.gulkalkan.service.IAuthenticationService;
 import jakarta.validation.Valid;
@@ -22,5 +23,11 @@ public class RestAuthenticationControllerImpl extends RestBaseController impleme
     @Override
     public RootEntity<DtoUser> register(@Valid @RequestBody AuthRequest input) {
         return ok(authenticationService.register(input));
+    }
+
+    @PostMapping("/authenticate")
+    @Override
+    public RootEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest input) {
+        return ok(authenticationService.authenticate(input));
     }
 }

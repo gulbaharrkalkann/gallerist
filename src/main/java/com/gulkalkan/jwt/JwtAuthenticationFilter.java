@@ -21,9 +21,9 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter  extends OncePerRequestFilter {
 
-
     @Autowired
     private JwtService jwtService;
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -31,37 +31,39 @@ public class JwtAuthenticationFilter  extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-
-            String header=request.getHeader("Authorization");
-            if (header == null){
-                filterChain.doFilter(request,response);
-                return;
-            }
-            String token;
-            String username;
-
-            token=header.substring(7);
-            try {
-               username= jwtService.getUsernameByToken(token);
-                if (username!=null&& SecurityContextHolder.getContext().getAuthentication()==null){
-
-                    UserDetails userDetails=userDetailsService.loadUserByUsername(username);
-                    if (userDetails!=null&& jwtService.isTokenValid(token)){
-                        UsernamePasswordAuthenticationToken authenticationToken=new
-                                UsernamePasswordAuthenticationToken(username,null,userDetails.getAuthorities());
-authenticationToken.setDetails(userDetails);
-SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    }
-                }
-            }catch (ExpiredJwtException ex){
-
-                throw new BaseException(new ErrorMessage(MessageType.TOKEN_IS_EXPIRED,ex.getMessage()));
-            }
-            catch (Exception e){
-
-                throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTİON,e.getMessage()));
-            }
-
+        String header = request.getHeader("Authorization");
+        if (header==null){
+            filterChain.doFilter(request,response);
+            return;
         }
+        String token;
+        String username;
+
+        token=header.substring(7);
+
+        try {
+            username=jwtService.getUsernameByToken(token);
+            if (username!= null&& SecurityContextHolder.getContext().getAuthentication()==null){
+                UserDetails userDetails=userDetailsService.loadUserByUsername(username);
+                if (userDetails!=null && jwtService.isTokenValid(token)){
+                    UsernamePasswordAuthenticationToken authenticationToken=new
+                            UsernamePasswordAuthenticationToken(username,null,userDetails.getAuthorities());
+                    authenticationToken.setDetails(userDetails);
+
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+                }
+            }
+        }
+        catch (ExpiredJwtException ex){
+            throw new BaseException(new ErrorMessage(MessageType.TOKEN_IS_EXPIRED,token));
+        }
+
+        catch (Exception e){
+            throw new BaseException(new ErrorMessage(MessageType.GENERAL_EXCEPTION,token));
+        }
+
     }
+}
+
 
