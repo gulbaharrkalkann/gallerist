@@ -6,6 +6,7 @@ import com.gulkalkan.controller.RootEntity;
 import com.gulkalkan.dto.AuthRequest;
 import com.gulkalkan.dto.AuthResponse;
 import com.gulkalkan.dto.DtoUser;
+import com.gulkalkan.dto.RefreshTokenRequest;
 import com.gulkalkan.service.IAuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,11 @@ public class RestAuthenticationControllerImpl extends RestBaseController impleme
     @Override
     public RootEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest input) {
         return ok(authenticationService.authenticate(input));
+    }
+
+    @PostMapping("/refreshToken")
+    @Override
+    public RootEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest input) {
+        return ok(authenticationService.refreshToken(input));
     }
 }

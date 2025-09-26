@@ -3,6 +3,7 @@ package com.gulkalkan.service.impl;
 import com.gulkalkan.dto.AuthRequest;
 import com.gulkalkan.dto.AuthResponse;
 import com.gulkalkan.dto.DtoUser;
+import com.gulkalkan.dto.RefreshTokenRequest;
 import com.gulkalkan.exception.BaseException;
 import com.gulkalkan.exception.ErrorMessage;
 import com.gulkalkan.exception.MessageType;
@@ -86,4 +87,34 @@ return new AuthResponse(accessToken,savedRefreshToken.getRefreshToken());
         }
 
     }
+
+
+    public boolean isValidRefreshToken(Date expiredDate){
+        return new Date().before(expiredDate);
+    }
+    @Override
+    public AuthResponse refreshToken(RefreshTokenRequest input) {
+ Optional<RefreshToken> optRefreshToken=refreshTokenRepository.findByRefreshToken(input.getRefreshToken());
+ if (optRefreshToken.isEmpty()){
+     throw new BaseException(new ErrorMessage(MessageType.REFRESH_TOKEN_NOT_FOUND, input.getRefreshToken()));
+ }
+ if (!isValidRefreshToken(optRefreshToken.get().getExpiredDate())){
+     throw  new BaseException(new ErrorMessage(MessageType.TOKEN_IS_EXPIRED, input.getRefreshToken()));
+ }
+
+
+ User user=optRefreshToken.get().getUser();
+
+ String accessToken=jwtService.generateToken(user);
+ RefreshToken savedRefreshToken=refreshTokenRepository.save(createRefreshToken(user));
+
+
+
+ return new AuthResponse(accessToken,savedRefreshToken.getRefreshToken());
+
+
+    }
+
+
+
 }
