@@ -1,4 +1,4 @@
-package com.gulkalkan.gallerist;
+package com.gulkalkan.starter;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
